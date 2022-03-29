@@ -21,14 +21,12 @@ import re
 
 from ctail.colors import colours, colour_list, colour_close
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __date__ = '2013-09-25'
-__updated__ = '2022-03-25'
+__updated__ = '2022-03-29'
 
-DEBUG = True
-TESTRUN = 0
-PROFILE = 0
-BLOCKSIZE = 175
+DEBUG = False
+BLOCKSIZE = 1024
 PROG_NAME = 'ctail'
 DT_REGEX = r'\d{4}[-.]?\d{2}[-.]?\d{2} \d{2}:\d{2}:\d{2}(?:,\d{3})?'
 
@@ -107,6 +105,7 @@ def main():
         parser.add_argument('-d', action='store_true', dest='colour_dt', help='color date times in format: yyyy-mm-dd HH:MM:SS')
         parser.add_argument('-l', default=10, dest="nlines", type=int, help="how many last lines show from file")
         parser.add_argument('-f', '--follow', action='store_true', help='output appended data as the file grows')
+        parser.add_argument('-s', '--show-regexes', action='store_true', help='Show applied regular expresions')
         args = parser.parse_args()
 
         file_path = os.path.abspath(os.path.expanduser(args.file_path))
@@ -120,12 +119,13 @@ def main():
 
         color_mod = len(colour_list)
         color_regexes = dict((regex, colours[colour_list[ix%color_mod]]) for ix, regex in enumerate(regexes))
-
-        print('-----------------------------------------------------------------')
-        print("Applied regexes:")
-        for r in regexes:
-            print(f"\t {color_regexes[r]}{r}{colour_close}")
-        print('-----------------------------------------------------------------')
+        
+        if args.show_regexes:
+            print('-----------------------------------------------------------------')
+            print("Applied regular expressions:")
+            for r in regexes:
+                print(f"\t {color_regexes[r]}{r}{colour_close}")
+            print('-----------------------------------------------------------------')
         fp = open(file_path, 'r')
         fp = seek_last_n_lines_position(fp, args.nlines)
         while True:
